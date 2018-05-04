@@ -1,6 +1,6 @@
 "use strict";
 
-let draw = (canvas, board) => {
+let draw = (canvas, board, markCol) => {
     let ctx = canvas.getContext("2d");
     let w = canvas.width;
     let h = canvas.height;
@@ -12,6 +12,11 @@ let draw = (canvas, board) => {
 
     ctx.fillStyle = "blue";
     ctx.fillRect(0, 0, w, h);
+
+    if (typeof markCol !== "undefined") {
+        ctx.fillStyle = "darkblue";
+        ctx.fillRect(dx * markCol, 0, dx, h);
+    }
 
     let colors = {
         "0": "lightblue",
@@ -50,7 +55,7 @@ class Game {
         let color = this.player ? 1 : 2;
         this.board.insert(col, color);
 
-        draw(this.canvas, this.board);
+        draw(this.canvas, this.board, col);
         this.player = !this.player;
 
         let gs = this.board.checkGameState();
@@ -109,20 +114,26 @@ class MonteCarloBot {
             game.select(e.data);
         };
 
-        this.worker.postMessage({board: board, color: color, rounds : this.rounds});
-      }
+        this.worker.postMessage({ board: board, color: color, rounds: this.rounds });
+    }
 }
 
+let getIntOrDefault = (val, def) => {
+    let v = parseInt(val);
+    return isNaN(v) ? def : v;
+};
 
 document.addEventListener("DOMContentLoaded", () => {
-    let rounds = parseInt(new URL(window.location.href).searchParams.get("rounds"));
-    if (isNaN(rounds))
-        rounds = 1000;
+    let rounds = getIntOrDefault(new URL(window.location.href).searchParams.get("rounds"), 1000);
+    let cols = getIntOrDefault(new URL(window.location.href).searchParams.get("cols"), 7);
+    let rows = getIntOrDefault(new URL(window.location.href).searchParams.get("rows"), 6);
 
-    console.log("difficulty", rounds);
+    document.getElementsByName("rows")[0].value = rows;
+    document.getElementsByName("cols")[0].value = cols;
+    document.getElementsByName("rounds")[0].value = rounds;
 
     let canvas = document.getElementById("canv");
-    let board = new Board({rows: 6, cols: 7});
+    let board = new Board({ rows: rows, cols: cols });
 
     let player1 = new HumanPlayer(canvas, "Monko");
     let player2 = new MonteCarloBot("Monty", rounds);
