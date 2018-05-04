@@ -37,8 +37,7 @@ class Game {
         this.board = board;
         this.player1 = player1;
         this.player2 = player2;
-        // this.player = Math.random() < .5;
-        this.player = false;
+        this.player = Math.random() < .5;
     }
 
     startTurn() {
