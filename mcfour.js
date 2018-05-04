@@ -120,6 +120,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (isNaN(rounds))
         rounds = 1000;
 
+    rounds = Math.max(1, rounds);
+
     console.log("difficulty", rounds);
 
     let canvas = document.getElementById("canv");
