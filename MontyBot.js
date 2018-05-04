@@ -8,19 +8,25 @@ onmessage = e => {
     let availableColumns = board.getFreeCols();
 
     // select one per random
-    // let col = availableColumns[Math.floor(Math.random() * availableColumns.length)];
+    if (rounds <= 0) {
+        // random!
+        let col = availableColumns[Math.floor(Math.random() * availableColumns.length)];
+        postMessage(col);
 
-    let res = availableColumns.map(c => {
-        let score = playRandomGames(board, c, mycolor, rounds)
-            .map(r => r === 0 ? 0 : (mycolor === r ? 1 : -1))
-            .reduce((a, b) => a + b);
+    } else {
+        // monte carlo method
+        let res = availableColumns.map(c => {
+            let score = playRandomGames(board, c, mycolor, rounds)
+                .map(r => r === 0 ? 0 : (mycolor === r ? 1 : -1))
+                .reduce((a, b) => a + b);
 
-        return { col: c, score: score }
-    });
-        
-    let best = res.reduce((acc, cv) => cv.score > acc.score ? cv : acc);
+            return { col: c, score: score }
+        });
 
-    postMessage(best.col);
+        let best = res.reduce((acc, cv) => cv.score > acc.score ? cv : acc);
+
+        postMessage(best.col);
+    }
 }
 
 let playRandomGames = (board, column, color, games) => {
